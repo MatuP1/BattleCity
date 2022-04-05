@@ -22,15 +22,15 @@ public class PipeSprite {
 
 
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(image, xX, -(GameView.gapHeight / 2) + yY, null);
+        canvas.drawBitmap(image, xX, -(Game.gapHeight / 2) + yY, null);
         canvas.drawBitmap(image2,xX, ((screenHeight / 2)
-                + (GameView.gapHeight / 2)) + yY, null);
+                + (Game.gapHeight / 2)) + yY, null);
 
 
     }
     public void update() {
 
-        xX -= GameView.velocity;
+        xX -= Game.velocity;
     }
 
 }

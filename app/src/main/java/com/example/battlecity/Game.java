@@ -9,30 +9,40 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private MainThread thread;
     private CharacterSprite characterSprite;
     public PipeSprite pipe1, pipe2, pipe3;
+    private Context context;
     public static int gapHeight = 500;
     public static int velocity = 10;
     private int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
     private int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
 
-    public GameView(Context context) {
+    private GameLoop gameLoop;
+
+    public Game(Context context) {
         super(context);
 
-        getHolder().addCallback(this);
+        //get surface holder (no se que es el surface holder) and add a callback
+        SurfaceHolder surfaceHolder = getHolder();
+        surfaceHolder.addCallback(this);
 
-        thread = new MainThread(getHolder(), this);
+        this.context = context;
+        gameLoop = new GameLoop(this,surfaceHolder);
 
         setFocusable(true);
+        //thread = new MainThread(getHolder(), this);
 
     }
 
@@ -40,7 +50,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
     }
+    public void surfaceCreated(SurfaceHolder holder) {
 
+        gameLoop.startLoop();
+        //makeLevel();
+
+
+       // thread.setRunning(true);
+       // thread.start();
+
+    }
     public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
         int width = bm.getWidth();
         int height = bm.getHeight();
@@ -62,18 +81,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         characterSprite.y = characterSprite.y - (characterSprite.yVelocity * 10);
         return super.onTouchEvent(event);
-    }
-
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-
-        makeLevel();
-
-
-        thread.setRunning(true);
-        thread.start();
-
     }
 
     private void makeLevel() {
@@ -110,25 +117,39 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update() {
-        logic();
+        /**logic();
         characterSprite.update();
         pipe1.update();
         pipe2.update();
-        pipe3.update();
+        pipe3.update();*/
     }
 
     @Override
     public void draw(Canvas canvas) {
 
         super.draw(canvas);
-        if (canvas != null) {
-            canvas.drawRGB(0, 100, 205);
-            characterSprite.draw(canvas);
-            pipe1.draw(canvas);
-            pipe2.draw(canvas);
-            pipe3.draw(canvas);
 
-        }
+
+        drawUPS(canvas);
+        drawFPS(canvas);
+    }
+
+    public void drawUPS(Canvas canvas){
+        String averageUPS = Double.toString(gameLoop.getAverageUPS());
+        Paint paint = new Paint();
+        int color = ContextCompat.getColor(context, R.color.magenta);
+        paint.setColor(color);
+        paint.setTextSize(50);
+        canvas.drawText("UPS "+averageUPS,100,100,paint);
+    }
+
+    public void drawFPS(Canvas canvas){
+        String averageFPS = Double.toString(gameLoop.getAverageFPS());
+        Paint paint = new Paint();
+        int color = ContextCompat.getColor(context, R.color.magenta);
+        paint.setColor(color);
+        paint.setTextSize(50);
+        canvas.drawText("FPS "+averageFPS,100,200,paint);
     }
 
     public void logic() {
