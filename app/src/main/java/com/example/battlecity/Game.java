@@ -5,22 +5,27 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private final Player player;
+    private Enemy enemy;
+    private Base base;
+    private Joystick joystick;
+    private Collection<Enemy> enemyCollection;
+    private Pair<Double,Double> [] spawnPoints = new Pair[3];
+    private int lastSpawnPoint;
     private MainThread thread;
     private CharacterSprite characterSprite;
     public PipeSprite pipe1, pipe2, pipe3;
@@ -37,9 +42,16 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         //get surface holder (no se que es el surface holder) and add a callback
         SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
-        player = new Player(getContext(),500,500,30);
+        spawnPoints[0]=new Pair<>(0.0,0.0);
+        spawnPoints[1]=new Pair<>(1000.0,0.0);
+        spawnPoints[2]=new Pair<>(2000.0,0.0);
+        lastSpawnPoint = 0;
+        joystick = new Joystick(275, 700, 70,40);
+        player = new Player(getContext(),joystick,500,500,30);
+        base = new Base(1000,1000,100);
+        //enemy = new NormalEnemy(base,500,500,30);
+        enemyCollection = new ArrayList<>();
         gameLoop = new GameLoop(this,surfaceHolder);
-
         setFocusable(true);
         //thread = new MainThread(getHolder(), this);
 
@@ -80,10 +92,18 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-                player.setPosition(event.getX(),event.getY());
+                if(joystick.isPressed((double)event.getX(),(double)event.getY())){
+                    joystick.setIsPressed(true);
+                }
                 return true;
             case MotionEvent.ACTION_MOVE:
-                player.setPosition(event.getX(),event.getY());
+                if(joystick.getIsPressed()){
+                    joystick.setActuator((double)event.getX(),(double)event.getY());
+                }
+                    return true;
+            case MotionEvent.ACTION_UP:
+                joystick.setIsPressed(false);
+                joystick.resetActuator();
                 return true;
         }
         return super.onTouchEvent(event);
@@ -123,12 +143,20 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update() {
-        /**logic();
-        characterSprite.update();
-        pipe1.update();
-        pipe2.update();
-        pipe3.update();*/
+        //Update game state
+        joystick.update();
         player.update();
+        base.update();
+
+        //spawn an enemy if it ready;
+        if(Enemy.readyToSpawn()){
+            Pair spawnPoint = spawnPoints[lastSpawnPoint++ % 3];
+            enemyCollection.add(new NormalEnemy(base, (Double) spawnPoint.getFirstElement(), (Double) spawnPoint.getSecondElement(),30));
+        }
+
+        for (Enemy enemy:enemyCollection ){
+            enemy.update();
+        }
     }
 
     @Override
@@ -138,8 +166,13 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
         drawUPS(canvas);
         drawFPS(canvas);
-
+        joystick.draw(canvas);
         player.draw(canvas);
+        base.draw(canvas);
+
+        for (Enemy enemy:enemyCollection ){
+            enemy.draw(canvas);
+        }
     }
 
     public void drawUPS(Canvas canvas){
