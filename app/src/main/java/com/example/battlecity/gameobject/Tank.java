@@ -1,4 +1,6 @@
-package com.example.battlecity;
+package com.example.battlecity.gameobject;
+
+import com.example.battlecity.gameobject.enemy.Enemy;
 
 public abstract class Tank extends GameObject {
     protected double velocityY;
@@ -6,4 +8,5 @@ public abstract class Tank extends GameObject {
     public Tank(double positionX, double positionY, double radius) {
         super(positionX, positionY, radius);
     }
+
 }

@@ -13,14 +13,21 @@ import android.view.SurfaceView;
 
 import androidx.core.content.ContextCompat;
 
+import com.example.battlecity.gameobject.Base;
+import com.example.battlecity.gameobject.GameObject;
+import com.example.battlecity.gameobject.Tank;
+import com.example.battlecity.gameobject.enemy.Enemy;
+import com.example.battlecity.gameobject.enemy.NormalEnemy;
+import com.example.battlecity.gameobject.Player;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private final Player player;
-    private Enemy enemy;
     private Base base;
     private Joystick joystick;
     private Collection<Enemy> enemyCollection;
@@ -156,6 +163,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
         for (Enemy enemy:enemyCollection ){
             enemy.update();
+        }
+        Iterator<Enemy> iteratorEnemy = enemyCollection.iterator();
+        while (iteratorEnemy.hasNext()){
+            if(GameObject.isCollinding(iteratorEnemy.next(),base)){
+                iteratorEnemy.remove();
+            }
         }
     }
 
