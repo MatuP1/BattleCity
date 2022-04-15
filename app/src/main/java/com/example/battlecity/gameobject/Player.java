@@ -35,8 +35,17 @@ public class Player extends Tank{
     public void update() {
         velocityX= joystick.getActuatorX()*MAX_SPEED;
         velocityY= joystick.getActuatorY()*MAX_SPEED;
+<<<<<<< Updated upstream:app/src/main/java/com/example/battlecity/gameobject/Player.java
         setPositionX(getPositionX() + velocityX);
         setPositionY(getPositionY() + velocityY);
+=======
+        positionX+=velocityX;
+        positionY+=velocityY;
+        if(velocityX != 0 || velocityY !=0){
+            //Normalize velocity to get direction
+            double distance = getDistanceBetweenTwoPoints(0,0,velocityX,velocityY);
+        }
+>>>>>>> Stashed changes:app/src/main/java/com/example/battlecity/Player.java
     }
 
     @Override

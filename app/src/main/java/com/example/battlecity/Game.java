@@ -31,6 +31,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private Base base;
     private Joystick joystick;
     private Collection<Enemy> enemyCollection;
+    private Collection<Spell> spellCollection;
     private Pair<Double,Double> [] spawnPoints = new Pair[3];
     private int lastSpawnPoint;
     private MainThread thread;
@@ -58,6 +59,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         base = new Base(1000,1000,100);
         //enemy = new NormalEnemy(base,500,500,30);
         enemyCollection = new ArrayList<>();
+        spellCollection = new ArrayList<>();
         gameLoop = new GameLoop(this,surfaceHolder);
         setFocusable(true);
         //thread = new MainThread(getHolder(), this);
@@ -99,8 +101,14 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-                if(joystick.isPressed((double)event.getX(),(double)event.getY())){
+                if(joystick.getIsPressed()){
+                    //joystick was pressed before this event
+                    spellCollection.add(new Spell(player));
+                } else if(joystick.isPressed((double)event.getX(),(double)event.getY())){
                     joystick.setIsPressed(true);
+                } else{
+                    // was not previously pressed
+                    spellCollection.add(new Spell(player));
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -164,10 +172,22 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         for (Enemy enemy:enemyCollection ){
             enemy.update();
         }
+<<<<<<< Updated upstream
         Iterator<Enemy> iteratorEnemy = enemyCollection.iterator();
         while (iteratorEnemy.hasNext()){
             if(GameObject.isCollinding(iteratorEnemy.next(),base)){
                 iteratorEnemy.remove();
+=======
+
+        for (Spell spell:spellCollection ){
+            spell.update();
+        }
+        Iterator<Enemy> enemyIterator = enemyCollection.iterator();
+        while (enemyIterator.hasNext()){
+            //Replace with Visitor patron
+            if(GameObject.isColliding(enemyIterator.next(),player)){
+                enemyIterator.remove();
+>>>>>>> Stashed changes
             }
         }
     }
