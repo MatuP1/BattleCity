@@ -10,6 +10,12 @@ public abstract class GameObject {
     private double radius;
     private double positionX,positionY;
     private int life;
+    private double velocityY;
+    private double velocityX;
+    //always start facing X
+    private double directionX = 1;
+    private double directionY;
+
 
     public GameObject(double positionX,double positionY, double radius){
         this.positionX = positionX;
@@ -26,10 +32,10 @@ public abstract class GameObject {
         );
     }
 
-    public static boolean isCollinding(GameObject go1, GameObject go2) {
+    public static boolean isColliding(GameObject go1, GameObject go2) {
         double distance = distanceBetweenTwoObjects(go1,go2);
-        double distanceToCollision = go1.getRadius() + go2.getRadius();
-        if (distance < distanceToCollision)
+        double distanceToCollision = go1.getRadius()+go2.getRadius();
+        if(distance<distanceToCollision)
             return true;
         else
             return false;
@@ -80,5 +86,20 @@ public abstract class GameObject {
         this.radius = radius;
     }
 
+    public double getVelocityY() { return velocityY;  }
+
+    public void setVelocityY(double velocityY) { this.velocityY = velocityY; }
+
+    public double getVelocityX() {        return velocityX; }
+
+    public void setVelocityX(double velocityX) {        this.velocityX = velocityX; }
+
+    public double getDirectionX() { return directionX; }
+
+    public double getDirectionY() {        return directionY; }
+
+    public void setDirectionX(double directionX) {       this.directionX = directionX; }
+
+    public void setDirectionY(double directionY) { this.directionY = directionY; }
 
 }

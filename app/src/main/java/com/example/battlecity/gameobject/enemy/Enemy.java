@@ -1,5 +1,6 @@
 package com.example.battlecity.gameobject.enemy;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 
@@ -20,7 +21,7 @@ public abstract class Enemy extends Tank {
     private int value;
 
     private final Base base;
-    public Enemy(Base base,double positionX, double positionY, double radius) {
+    public Enemy(Context context, Base base, double positionX, double positionY, double radius) {
         super(positionX, positionY, radius);
         this.base = base;
         setPaint(new Paint());
@@ -49,16 +50,16 @@ public abstract class Enemy extends Tank {
         double directionY = distanceToBaseY/distanceToBase;
 
         if(distanceToBase>0){
-            velocityX = directionX*MAX_SPEED;
-            velocityY = directionY*MAX_SPEED;
+            setVelocityX(directionX*MAX_SPEED);
+            setVelocityY(directionY*MAX_SPEED);
         }else{
-            velocityX = 0;
-            velocityY = 0;
+            setVelocityX(0);
+            setVelocityY(0);
         }
 
         //Update position
-        setPositionX(getPositionX() + velocityX);
-        setPositionY(getPositionY() + velocityY);
+        setPositionX(getPositionX() + getVelocityX());
+        setPositionY(getPositionY() + getVelocityY());
     }
 
     @Override

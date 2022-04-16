@@ -75,9 +75,11 @@ public class Joystick {
     }
 
     public boolean isPressed(double touchPositionX, double touchPositionY) {
-        joystickCenterToTouchDistance = distanceBetween(
-                (outerCircleCenterPositionX - touchPositionX),
-                (outerCircleCenterPositionY - touchPositionY)
+        joystickCenterToTouchDistance = Utils.getDistanceBetweenTwoPoints(
+                outerCircleCenterPositionX,
+                outerCircleCenterPositionY,
+                touchPositionX,
+                touchPositionY
         );
         return joystickCenterToTouchDistance < outerCircleRadius;
     }
@@ -85,7 +87,7 @@ public class Joystick {
     public void setActuator(double touchPositionX, double touchPositionY) {
         double deltaX = touchPositionX - outerCircleCenterPositionX;
         double deltaY = touchPositionY - outerCircleCenterPositionY;
-        double deltaDistance = distanceBetween(deltaX,deltaY);
+        double deltaDistance = Utils.distanceBetween(deltaX,deltaY);
 
         if(deltaDistance < outerCircleRadius){
             actuatorX = deltaX/outerCircleRadius;
@@ -94,10 +96,6 @@ public class Joystick {
             actuatorX = deltaX/deltaDistance;
             actuatorY = deltaY/deltaDistance;
         }
-    }
-
-    private double distanceBetween (double X, double Y){
-        return Math.sqrt(Math.pow(X,2)+Math.pow(Y,2));
     }
 
     public double getActuatorX() {

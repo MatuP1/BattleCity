@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.battlecity.gameobject.Base;
 import com.example.battlecity.gameobject.GameObject;
-import com.example.battlecity.gameobject.Tank;
+import com.example.battlecity.gameobject.Spell;
 import com.example.battlecity.gameobject.enemy.Enemy;
 import com.example.battlecity.gameobject.enemy.NormalEnemy;
 import com.example.battlecity.gameobject.Player;
@@ -43,6 +43,8 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
 
     private GameLoop gameLoop;
+    private int joystickPointerID = 0;
+    private int numberOfSpellsToCast = 0;
 
     public Game(Context context) {
         super(context);
@@ -99,26 +101,32 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()){
+        switch (event.getActionMasked()){
             case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
                 if(joystick.getIsPressed()){
-                    //joystick was pressed before this event
-                    spellCollection.add(new Spell(player));
+                    //joystick was pressed before this event -> cast spell
+                    numberOfSpellsToCast++;
                 } else if(joystick.isPressed((double)event.getX(),(double)event.getY())){
+                    //Joystick is pressed in this event
+                    joystickPointerID = event.getPointerId(event.getActionIndex());
                     joystick.setIsPressed(true);
                 } else{
                     // was not previously pressed
-                    spellCollection.add(new Spell(player));
+                    numberOfSpellsToCast++;
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
                 if(joystick.getIsPressed()){
                     joystick.setActuator((double)event.getX(),(double)event.getY());
                 }
-                    return true;
+                return true;
             case MotionEvent.ACTION_UP:
-                joystick.setIsPressed(false);
-                joystick.resetActuator();
+            case MotionEvent.ACTION_POINTER_UP:
+                if(joystickPointerID == event.getPointerId(event.getActionIndex())){
+                    joystick.setIsPressed(false);
+                    joystick.resetActuator();
+                }
                 return true;
         }
         return super.onTouchEvent(event);
@@ -166,28 +174,45 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         //spawn an enemy if it ready;
         if(Enemy.readyToSpawn()){
             Pair spawnPoint = spawnPoints[lastSpawnPoint++ % 3];
-            enemyCollection.add(new NormalEnemy(base, (Double) spawnPoint.getFirstElement(), (Double) spawnPoint.getSecondElement(),30));
+            enemyCollection.add(new NormalEnemy(getContext(),base, (Double) spawnPoint.getFirstElement(), (Double) spawnPoint.getSecondElement(),30));
         }
-
+        while (numberOfSpellsToCast>0){
+            spellCollection.add(new Spell(getContext(),player));
+            numberOfSpellsToCast--;
+        }
         for (Enemy enemy:enemyCollection ){
             enemy.update();
         }
-<<<<<<< Updated upstream
-        Iterator<Enemy> iteratorEnemy = enemyCollection.iterator();
-        while (iteratorEnemy.hasNext()){
-            if(GameObject.isCollinding(iteratorEnemy.next(),base)){
-                iteratorEnemy.remove();
-=======
 
         for (Spell spell:spellCollection ){
             spell.update();
         }
         Iterator<Enemy> enemyIterator = enemyCollection.iterator();
+        //Check collisions for the enemies
         while (enemyIterator.hasNext()){
             //Replace with Visitor patron
-            if(GameObject.isColliding(enemyIterator.next(),player)){
+            GameObject enemy = enemyIterator.next();
+            if(GameObject.isColliding(enemy,player)){
                 enemyIterator.remove();
->>>>>>> Stashed changes
+                player.receiveDamage();
+                //Collide with an enemy shouldn't kill the player
+                continue;
+            }
+            if(GameObject.isColliding(enemy,base)){
+                enemyIterator.remove();
+                base.receiveDamage();
+                //Collide with an enemy shouldn't kill the player
+                continue;
+            }
+            Iterator<Spell> spellIterator = spellCollection.iterator();
+            while (spellIterator.hasNext()){
+                //Replace with Visitor patron
+                GameObject spell = spellIterator.next();
+                if(GameObject.isColliding(spell,enemy)){
+                    spellIterator.remove();
+                    enemyIterator.remove();
+                    break;
+                }
             }
         }
     }
@@ -205,6 +230,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
         for (Enemy enemy:enemyCollection ){
             enemy.draw(canvas);
+        }
+        for (Spell spell:spellCollection ){
+            spell.draw(canvas);
         }
     }
 
