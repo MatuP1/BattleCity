@@ -28,23 +28,22 @@ import java.util.Random;
 
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private final Player player;
-    private Base base;
-    private Joystick joystick;
-    private Collection<Enemy> enemyCollection;
-    private Collection<Spell> spellCollection;
-    private Pair<Double,Double> [] spawnPoints = new Pair[3];
+    private final Base base;
+    private final Joystick joystick;
+    private final Collection<Enemy> enemyCollection;
+    private final Collection<Spell> spellCollection;
+    private final Pair<Double,Double> [] spawnPoints = new Pair[3];
     private int lastSpawnPoint;
-    private MainThread thread;
-    private CharacterSprite characterSprite;
     public PipeSprite pipe1, pipe2, pipe3;
     public static int gapHeight = 500;
     public static int velocity = 10;
-    private int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-    private int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+    private final int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+    private final int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
 
     private GameLoop gameLoop;
     private int joystickPointerID = 0;
     private int numberOfSpellsToCast = 0;
+    private final GameOver gameOver;
 
     public Game(Context context) {
         super(context);
@@ -52,17 +51,24 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         //get surface holder (no se que es el surface holder) and add a callback
         SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
+
+        //Set the spawn points for the enemies
         spawnPoints[0]=new Pair<>(0.0,0.0);
         spawnPoints[1]=new Pair<>(1000.0,0.0);
         spawnPoints[2]=new Pair<>(2000.0,0.0);
         lastSpawnPoint = 0;
+
+        //Initialize objects that interact with others
         joystick = new Joystick(275, 700, 70,40);
         player = new Player(getContext(),joystick,500,500,30);
         base = new Base(1000,1000,100);
-        //enemy = new NormalEnemy(base,500,500,30);
         enemyCollection = new ArrayList<>();
         spellCollection = new ArrayList<>();
         gameLoop = new GameLoop(this,surfaceHolder);
+
+        //initialize game panels?
+
+        gameOver = new GameOver(getContext());
         setFocusable(true);
         //thread = new MainThread(getHolder(), this);
 
@@ -73,6 +79,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     }
     public void surfaceCreated(SurfaceHolder holder) {
+        if (gameLoop.getState().equals(Thread.State.TERMINATED)) {
+            gameLoop = new GameLoop(this, holder);
+        }
 
         gameLoop.startLoop();
         //makeLevel();
@@ -82,6 +91,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
        // thread.start();
 
     }
+
     public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
         int width = bm.getWidth();
         int height = bm.getHeight();
@@ -132,6 +142,8 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         return super.onTouchEvent(event);
     }
 
+    /**
+     *
     private void makeLevel() {
         characterSprite = new CharacterSprite
                 (getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.bird), 300, 240));
@@ -148,12 +160,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         pipe2 = new PipeSprite(bmp, bmp2, 4500, 100);
         pipe3 = new PipeSprite(bmp, bmp2, 3200, 100);
 
-    }
+    }*/
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         boolean retry = true;
-        while (retry) {
+        /**while (retry) {
             try {
                 thread.setRunning(false);
                 thread.join();
@@ -162,10 +174,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 e.printStackTrace();
             }
             retry = false;
-        }
+        }*/
     }
 
     public void update() {
+        if(player.getHealthPoints() <= 0 || base.getHealthPoints() <= 0){return;}
+
         //Update game state
         joystick.update();
         player.update();
@@ -213,6 +227,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                     enemyIterator.remove();
                     break;
                 }
+                if(GameObject.isColliding(spell,base)){
+                    spellIterator.remove();
+                    base.receiveDamage();
+                    break;
+                }
             }
         }
     }
@@ -234,6 +253,10 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         for (Spell spell:spellCollection ){
             spell.draw(canvas);
         }
+        //Draw Game over
+        if(player.getHealthPoints() <= 0 || base.getHealthPoints() <= 0){
+            gameOver.draw(canvas);
+        }
     }
 
     public void drawUPS(Canvas canvas){
@@ -254,49 +277,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawText("FPS "+averageFPS,100,200,paint);
     }
 
-    public void logic() {
-
-        List<PipeSprite> pipes = new ArrayList<>();
-        pipes.add(pipe1);
-        pipes.add(pipe2);
-        pipes.add(pipe3);
-
-        for (int i = 0; i < pipes.size(); i++) {
-            //Detect if the character is touching one of the pipes
-            if (characterSprite.y < pipes.get(i).yY + (screenHeight / 2) - (gapHeight / 2) && characterSprite.x + 300 > pipes.get(i).xX && characterSprite.x < pipes.get(i).xX + 500) {
-                resetLevel();
-            } else if (characterSprite.y + 240 > (screenHeight / 2) + (gapHeight / 2) + pipes.get(i).yY && characterSprite.x + 300 > pipes.get(i).xX && characterSprite.x < pipes.get(i).xX + 500) {
-                resetLevel();
-            }
-
-            //Detect if the pipe has gone off the left of the screen and regenerate further ahead
-            if (pipes.get(i).xX + 500 < 0) {
-                Random r = new Random();
-                int value1 = r.nextInt(500);
-                int value2 = r.nextInt(500);
-                pipes.get(i).xX = screenWidth + value1 + 1000;
-                pipes.get(i).yY = value2 - 250;
-            }
-        }
-
-        //Detect if the character has gone off the bottom or top of the screen
-        if (characterSprite.y + 240 < 0) {
-            resetLevel();
-        }
-        if (characterSprite.y > screenHeight) {
-            resetLevel();
-        }
-    }
-
-
-    public void resetLevel() {
-        characterSprite.y = 100;
-        pipe1.xX = 2000;
-        pipe1.yY = 0;
-        pipe2.xX = 4500;
-        pipe2.yY = 200;
-        pipe3.xX = 3200;
-        pipe3.yY = 250;
-
+    public void pause() {
+        gameLoop.stopLoop();
     }
 }

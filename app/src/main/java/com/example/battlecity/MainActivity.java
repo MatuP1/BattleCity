@@ -6,6 +6,8 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity {
+    private Game game;
+
     /**
      * Main Activity is the entry point of the app
      * @param savedInstanceState
@@ -18,7 +20,21 @@ public class MainActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(new Game(this));
+        game = new Game(this);
+        setContentView(game);
+
+    }
+
+    @Override
+    protected void onPause() {
+        game.pause();
+        super.onPause();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
 
     }
 }

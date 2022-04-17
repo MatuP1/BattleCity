@@ -32,6 +32,6 @@ public class Base extends Tank {
 
     @Override
     public void receiveDamage() {
-        die();
+        setHealthPoints(0);
     }
 }
