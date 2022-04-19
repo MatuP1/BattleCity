@@ -52,6 +52,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
 
+        SpriteSheet spriteSheet = new SpriteSheet(getContext());
         //Set the spawn points for the enemies
         spawnPoints[0]=new Pair<>(0.0,0.0);
         spawnPoints[1]=new Pair<>(1000.0,0.0);
@@ -60,7 +61,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
         //Initialize objects that interact with others
         joystick = new Joystick(275, 700, 70,40);
-        player = new Player(getContext(),joystick,500,500,30);
+        player = new Player(getContext(),joystick,500,500,30, spriteSheet.getPlayerSprite());
         base = new Base(1000,1000,100);
         enemyCollection = new ArrayList<>();
         spellCollection = new ArrayList<>();

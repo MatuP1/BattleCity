@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import com.example.battlecity.GameLoop;
 import com.example.battlecity.Joystick;
 import com.example.battlecity.R;
+import com.example.battlecity.Sprite;
 import com.example.battlecity.Utils;
 
 public class Player extends Tank{
@@ -19,8 +20,9 @@ public class Player extends Tank{
 
     private final Joystick joystick;
     private final HealthBar healthBar;
+    private final Sprite sprite;
 
-    public Player(Context context,Joystick joystick,double positionX, double positionY, double radius){
+    public Player(Context context,Joystick joystick,double positionX, double positionY, double radius,Sprite sprite){
         super(positionX,positionY,radius);
         this.joystick=joystick;
 
@@ -30,10 +32,15 @@ public class Player extends Tank{
 
         setHealthPoints(MAX_HEALTH_POINTS);
         this.healthBar = new HealthBar(context,this);
+
+        this.sprite = sprite;
     }
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawCircle((float)getPositionX(),(float) getPositionY(),(float) getRadius(),getPaint() );
+        sprite.draw(
+                canvas,
+                (int)getPositionX()-sprite.getWidth()/2,
+                (int)getPositionY()-sprite.getHeight()/2);
         healthBar.draw(canvas);
     }
 
