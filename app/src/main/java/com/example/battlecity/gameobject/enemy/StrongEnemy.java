@@ -13,6 +13,11 @@ public class StrongEnemy extends Enemy{
     }
 
     @Override
+    public void updateStrategy(double dirX, double dirY) {
+
+    }
+
+    @Override
     public void draw(Canvas canvas) {
 
     }

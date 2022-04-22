@@ -12,13 +12,14 @@ import com.example.battlecity.R;
 import com.example.battlecity.gameobject.Player;
 
 public class Spell extends GameObject {
-    private Player spellcaster;
+    private Tank spellcaster;
 
     private static final double SPEED_PIXELS_PER_SECOND = 800.0;
     private static final double MAX_SPEED = SPEED_PIXELS_PER_SECOND/ GameLoop.MAX_UPS;
 
-    public Spell(Context context, Player player) {
+    public Spell(Context context, Tank player) {
         super(
+                context,
                 player.getPositionX(),
                 player.getPositionY(),
                 25);

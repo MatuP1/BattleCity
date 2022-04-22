@@ -1,12 +1,14 @@
 package com.example.battlecity.gameobject.terrain;
 
+import android.content.Context;
 import android.graphics.Canvas;
 
 import com.example.battlecity.gameobject.GameObject;
 
 public class Water extends GameObject {
-    public Water(double positionX, double positionY, double radius) {
-        super(positionX, positionY, radius);
+
+    public Water(Context context, double positionX, double positionY, double radius) {
+        super(context, positionX, positionY, radius);
     }
 
     @Override

@@ -1,17 +1,28 @@
 package com.example.battlecity.gameobject.terrain;
 
+import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
 import com.example.battlecity.gameobject.GameObject;
+import com.example.battlecity.graphics.Sprite;
+import com.example.battlecity.strategies.StrategyMoveDown;
+import com.example.battlecity.strategies.StrategyMoveUp;
 
-public class Brick extends GameObject {
-    public Brick(double positionX, double positionY, double radius) {
-        super(positionX, positionY, radius);
+public class Brick extends World {
+
+
+
+
+    public Brick(Context context, double positionX, double positionY, double radius) {
+        super(context, positionX, positionY, radius);
+        setSprite(new Sprite(context,new Rect(16*16,0,16*16+8,8),this));
     }
+
 
     @Override
     public void draw(Canvas canvas) {
-
+        getSprite().draw(canvas,(int)getPositionX(),(int)getPositionY(),24,24);
     }
 
     @Override
@@ -26,6 +37,6 @@ public class Brick extends GameObject {
 
     @Override
     public void receiveDamage() {
-
+        setLife(0);
     }
 }

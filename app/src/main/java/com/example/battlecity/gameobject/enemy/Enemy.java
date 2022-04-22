@@ -8,6 +8,11 @@ import com.example.battlecity.GameLoop;
 import com.example.battlecity.gameobject.Base;
 import com.example.battlecity.gameobject.GameObject;
 import com.example.battlecity.gameobject.Tank;
+import com.example.battlecity.gameobject.bullet.EnemyBullet;
+import com.example.battlecity.strategies.StrategyMoveLeft;
+import com.example.battlecity.strategies.StrategyMoveRight;
+
+import java.util.Random;
 
 public abstract class Enemy extends Tank {
 
@@ -20,13 +25,15 @@ public abstract class Enemy extends Tank {
     private static double updatesUntilNextSpawn = UPDATES_PER_SPAWN;
     private int value;
 
-    private final Base base;
+    private int nextUpdateToShoot;
+
     public Enemy(Context context, Base base, double positionX, double positionY, double radius) {
-        super(positionX, positionY, radius);
+        super(context,positionX, positionY, radius);
         this.base = base;
         setPaint(new Paint());
         getPaint().setColor(Color.RED);
         value = 0;
+        nextUpdateToShoot = new Random().nextInt(60)+30;
     }
 
     public static boolean readyToSpawn() {
@@ -41,26 +48,18 @@ public abstract class Enemy extends Tank {
 
     @Override
     public void update() {
-        double distanceToBaseX = base.getPositionX() - getPositionX();
-        double distanceToBaseY = base.getPositionY() - getPositionY();
-
-        double distanceToBase = GameObject.distanceBetweenTwoObjects(this,base);
-
-        double directionX = distanceToBaseX/distanceToBase;
-        double directionY = distanceToBaseY/distanceToBase;
-
-        if(distanceToBase>0){
-            setVelocityX(directionX*MAX_SPEED);
-            setVelocityY(directionY*MAX_SPEED);
-        }else{
-            setVelocityX(0);
-            setVelocityY(0);
-        }
-
-        //Update position
-        setPositionX(getPositionX() + getVelocityX());
-        setPositionY(getPositionY() + getVelocityY());
+       state.move();
+       state.update();
     }
+
+    public boolean readyToShoot() { return --nextUpdateToShoot <= 0; }
+
+    public EnemyBullet shoot()
+    {
+        nextUpdateToShoot = new Random().nextInt(60)+30;
+        return new EnemyBullet(getContext(), this);
+    }
+
 
     @Override
     public void die() {

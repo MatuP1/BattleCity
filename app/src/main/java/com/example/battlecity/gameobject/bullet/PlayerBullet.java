@@ -1,12 +1,15 @@
 package com.example.battlecity.gameobject.bullet;
 
+import android.content.Context;
 import android.graphics.Canvas;
 
 import com.example.battlecity.gameobject.GameObject;
 
 public class PlayerBullet extends GameObject {
-    public PlayerBullet(double positionX, double positionY, double radius) {
-        super(positionX, positionY, radius);
+
+
+    public PlayerBullet(Context context, double positionX, double positionY, double radius) {
+        super(context, positionX, positionY, radius);
     }
 
     @Override

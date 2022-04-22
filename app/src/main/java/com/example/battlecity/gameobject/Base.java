@@ -1,5 +1,6 @@
 package com.example.battlecity.gameobject;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -8,8 +9,8 @@ import com.example.battlecity.gameobject.GameObject;
 
 public class Base extends Tank {
 
-    public Base(double positionX, double positionY, double radius) {
-        super(positionX, positionY, radius);
+    public Base(Context context,double positionX, double positionY, double radius) {
+        super(context,positionX, positionY, radius);
         setPaint(new Paint());
         getPaint().setColor(Color.WHITE);
         setHealthPoints(1);
@@ -18,6 +19,11 @@ public class Base extends Tank {
     @Override
     public void draw(Canvas canvas) {
         canvas.drawCircle((float)getPositionX(),(float) getPositionY(),(float) getRadius(),getPaint() );
+    }
+
+    @Override
+    public void updateStrategy(double dirX, double dirY) {
+
     }
 
     @Override

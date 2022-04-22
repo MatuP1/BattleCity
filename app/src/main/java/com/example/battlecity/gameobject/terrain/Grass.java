@@ -1,12 +1,15 @@
 package com.example.battlecity.gameobject.terrain;
 
+import android.content.Context;
 import android.graphics.Canvas;
 
 import com.example.battlecity.gameobject.GameObject;
 
 public class Grass extends GameObject {
-    public Grass(double positionX, double positionY, double radius) {
-        super(positionX, positionY, radius);
+
+
+    public Grass(Context context, double positionX, double positionY, double radius) {
+        super(context, positionX, positionY, radius);
     }
 
     @Override

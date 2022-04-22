@@ -1,9 +1,11 @@
 package com.example.battlecity.gameobject;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import com.example.battlecity.gameobject.enemy.Enemy;
+import com.example.battlecity.graphics.Sprite;
 
 public abstract class GameObject {
     private Paint paint;
@@ -13,18 +15,22 @@ public abstract class GameObject {
     private double velocityY;
     private double velocityX;
     //always start facing X
-    private double directionX = 1;
-    private double directionY;
+    private double directionX;
+    private double directionY = -1;
+    private Sprite sprite;
 
 
-    public GameObject(double positionX,double positionY, double radius){
+    private Context context;
+
+    public GameObject(Context context, double positionX, double positionY, double radius){
         this.positionX = positionX;
         this.positionY = positionY;
         this.radius = radius;
         life = 1;
+        this.context = context;
     }
 
-    protected static double distanceBetweenTwoObjects(GameObject go1, GameObject go2) {
+    public static double distanceBetweenTwoObjects(GameObject go1, GameObject go2) {
         return Math.sqrt(
                 Math.pow(go2.getPositionX()- go1.getPositionX(),2) +
                 Math.pow(go2.getPositionY() - go1.getPositionY(),2)
@@ -102,4 +108,48 @@ public abstract class GameObject {
 
     public void setDirectionY(double directionY) { this.directionY = directionY; }
 
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public void setSprite(Sprite sprite) {
+        this.sprite = sprite;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public boolean checkOutOfBounds(int sh,int sw){
+        boolean outOfBounds = false;
+        if(getPositionX() > 1850|| getPositionX() < 96*6){
+            setVelocityX(0);
+            setDirectionX(0);
+            if(getPositionX() > 1850)
+                setPositionX(1820);
+            else
+                setPositionX(32+96*6);
+            outOfBounds = true;
+        }
+        if(getPositionY() > sh|| getPositionY() < 24){
+            setVelocityY(0);
+            setDirectionY(0);
+            if(getPositionY() > sh)
+                setPositionY(sh-32);
+            else
+                setPositionY(24);
+            outOfBounds = true;
+        }
+        return outOfBounds;
+    }
+
+    public void destroy(){
+        paint = null;
+        sprite = null;
+
+    }
 }
